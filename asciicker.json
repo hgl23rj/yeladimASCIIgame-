@@ -1,0 +1,17 @@
+{
+  "short_name": "Patrick's MC",
+  "name": "Patrick's Minecraft",
+  "icons": [
+    {
+      "src": "asciicker.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "index.html",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "description": "Patrick's Minecraft - ASCII Adventure"
+}
