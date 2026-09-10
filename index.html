@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en-us">
+<html lang="pt-BR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -18,6 +18,7 @@
       width: 100%;
       height: 100%;
       border: none;
+      outline: none;
     }
     #overlay {
       position: fixed;
@@ -25,22 +26,22 @@
       z-index: 10;
       pointer-events: none;
       text-align: center;
-      padding-top: 12px;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
-      height: 80px;
+      padding-top: 10px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.75), transparent);
+      height: 70px;
     }
     #overlay h1 {
       color: #7CFC00;
-      font-size: 22px;
+      font-size: 20px;
       letter-spacing: 2px;
       text-shadow: 0 0 12px #7CFC00;
       margin: 0;
     }
     #overlay p {
-      color: #aaa;
+      color: #999;
       font-size: 11px;
       letter-spacing: 1px;
-      margin-top: 4px;
+      margin-top: 3px;
     }
     #loading {
       position: fixed;
@@ -59,11 +60,7 @@
       text-shadow: 0 0 15px #7CFC00;
       margin-bottom: 8px;
     }
-    #loading p {
-      color: #888;
-      font-size: 13px;
-      margin-bottom: 30px;
-    }
+    #loading p { color: #888; font-size: 13px; margin-bottom: 24px; }
     .spin {
       width: 48px; height: 48px;
       border: 6px solid #7CFC00;
@@ -72,6 +69,21 @@
       animation: rot 0.8s linear infinite;
     }
     @keyframes rot { to { transform: rotate(360deg); } }
+
+    #hint {
+      position: fixed;
+      bottom: 16px; left: 0; right: 0;
+      text-align: center;
+      z-index: 15;
+      pointer-events: none;
+      color: #7CFC00;
+      font-size: 13px;
+      letter-spacing: 1px;
+      text-shadow: 0 0 8px #000;
+      opacity: 0.9;
+      transition: opacity 0.5s;
+    }
+    #hint.hide { opacity: 0; }
   </style>
 </head>
 <body>
@@ -84,15 +96,19 @@
 
   <div id="overlay" style="display:none">
     <h1>Patrick's Minecraft</h1>
-    <p>ASCII Adventure</p>
+    <p>WASD = andar &nbsp;|&nbsp; Mouse = olhar &nbsp;|&nbsp; Espaço = pular &nbsp;|&nbsp; Q/E = girar</p>
   </div>
 
-  <!-- Carrega o jogo oficial em iframe (já funciona e tem som) -->
+  <div id="hint" style="display:none">
+    Clique dentro do jogo para ativar o teclado
+  </div>
+
   <iframe
     id="frame"
     src="https://asciicker.com/y9/"
-    allow="autoplay; fullscreen; gamepad"
+    allow="autoplay; fullscreen; gamepad; keyboard-map"
     allowfullscreen
+    tabindex="0"
     style="display:none"
   ></iframe>
 
@@ -100,22 +116,56 @@
     var frame = document.getElementById("frame");
     var loading = document.getElementById("loading");
     var overlay = document.getElementById("overlay");
+    var hint = document.getElementById("hint");
 
-    // Quando o iframe carregar, esconde o loading
+    function focusGame() {
+      try {
+        frame.focus();
+        // Tenta focar o conteúdo interno também
+        if (frame.contentWindow) {
+          frame.contentWindow.focus();
+        }
+      } catch (e) {}
+    }
+
     frame.onload = function() {
       setTimeout(function() {
         loading.style.display = "none";
         frame.style.display = "block";
         overlay.style.display = "block";
-      }, 800);
+        hint.style.display = "block";
+        focusGame();
+
+        // Esconde a dica depois de alguns segundos
+        setTimeout(function() {
+          hint.classList.add("hide");
+        }, 5000);
+      }, 600);
     };
+
+    // Sempre que clicar na página, foca o iframe
+    document.addEventListener("click", function() {
+      focusGame();
+      hint.classList.add("hide");
+    });
+
+    document.addEventListener("touchstart", function() {
+      focusGame();
+      hint.classList.add("hide");
+    }, {passive: true});
+
+    // Encaminha teclas para o iframe quando possível
+    window.addEventListener("keydown", function(e) {
+      focusGame();
+    });
 
     // Timeout de segurança
     setTimeout(function() {
       if (loading.style.display !== "none") {
-        loading.querySelector("p:last-child").textContent = "Quase lá...";
+        var p = loading.querySelector("p:last-child");
+        if (p) p.textContent = "Ainda carregando, aguarde...";
       }
-    }, 5000);
+    }, 6000);
   </script>
 </body>
 </html>
